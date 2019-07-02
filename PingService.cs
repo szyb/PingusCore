@@ -55,7 +55,6 @@ namespace PingusCore
     public Task StopAsync(CancellationToken cancellationToken)
     {
       Console.WriteLine("Timed Background Service is stopping.");
-      cancellationToken.WaitHandle.WaitOne();
       _timer?.Change(Timeout.Infinite, 0);
       return Task.CompletedTask;
     }
