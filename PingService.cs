@@ -34,31 +34,37 @@ namespace PingusCore
 
     private void DoWork(object state)
     {
-      pingCount++;
-      Ping pingSender = new Ping();
-      PingOptions options = new PingOptions();
-
-      // Use the default Ttl value which is 128,
-      // but change the fragmentation behavior.
-      options.DontFragment = true;
-
-      // Create a buffer of 32 bytes of data to be transmitted.
-      string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-      byte[] buffer = Encoding.ASCII.GetBytes(data);
-      int timeout = 5000;
-      string host = "192.168.0.9";
-      PingReply reply = pingSender.Send(host, timeout, buffer, options);
-      if (reply.Status != IPStatus.Success)
+      try
       {
-        logger.Error(GetErrorInfoFromReply(host, reply));
-      }
-      else
-      {
-        pingSuccess++;
-        Console.SetCursorPosition(0, Console.CursorTop);
-        Console.Write($"Ping success: {pingSuccess} / {pingCount}");
-      }
+        pingCount++;
+        Ping pingSender = new Ping();
+        PingOptions options = new PingOptions();
 
+        // Use the default Ttl value which is 128,
+        // but change the fragmentation behavior.
+        options.DontFragment = true;
+
+        // Create a buffer of 32 bytes of data to be transmitted.
+        string data = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+        byte[] buffer = Encoding.ASCII.GetBytes(data);
+        int timeout = 5000;
+        string host = "192.168.0.1";
+        PingReply reply = pingSender.Send(host, timeout, buffer, options);
+        if (reply.Status != IPStatus.Success)
+        {
+          logger.Error(GetErrorInfoFromReply(host, reply));
+        }
+        else
+        {
+          pingSuccess++;
+          Console.SetCursorPosition(0, Console.CursorTop);
+          Console.Write($"Ping success: {pingSuccess} / {pingCount}");
+        }
+      }
+      catch (Exception ex)
+      {
+        logger.Error(ex.Message + ex.StackTrace);
+      }
     }
 
     private string GetErrorInfoFromReply(string host, PingReply reply)
