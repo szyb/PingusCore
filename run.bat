@@ -1,0 +1,2 @@
+dotnet PingusCore.dll
+pause
