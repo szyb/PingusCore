@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading;
@@ -25,6 +26,14 @@ namespace PingusCore
       {
         stats.Add(h, new HostStatistics(h));
       }
+      SettingsCheck();
+    }
+
+    private void SettingsCheck()
+    {
+      int timeoutSum = AppSettingsProvider.AppSettings.Hosts.Sum(p => p.TimeoutInSeconds);
+      if (timeoutSum > AppSettingsProvider.AppSettings.PingIntervalInSeconds)
+        logger.Warning("AppSettings: Sum of timeouts is exceeding the ping round interval. It is not recommended in long time process running.");
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
