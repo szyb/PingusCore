@@ -27,14 +27,10 @@ namespace PingusCore
         stats.Add(h, new HostStatistics(h));
       }
       SettingsCheck();
+      if (AppSettingsProvider.AppSettings.LogConfig)
+        LogConfig();
     }
 
-    private void SettingsCheck()
-    {
-      int timeoutSum = AppSettingsProvider.AppSettings.Hosts.Sum(p => p.TimeoutInSeconds);
-      if (timeoutSum > AppSettingsProvider.AppSettings.PingIntervalInSeconds)
-        logger.Warning("AppSettings: Sum of timeouts is exceeding the ping round interval. It is not recommended in long time process running.");
-    }
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -93,9 +89,14 @@ namespace PingusCore
     {
       Console.WriteLine();
       logger.Information("Ping service stopped");
+      if (AppSettingsProvider.AppSettings.LogStats)
+        LogStats();
+
       _timer?.Change(Timeout.Infinite, 0);
       return Task.CompletedTask;
     }
+
+
 
     public void Dispose()
     {
@@ -137,5 +138,36 @@ namespace PingusCore
         return false;
       }
     }
+
+    private void LogConfig()
+    {
+      logger.Information($"Ping round interval: {AppSettingsProvider.AppSettings.PingIntervalInSeconds} sec.");
+      logger.Information($"Hosts:");
+      int i = 1;
+      foreach (var h in AppSettingsProvider.AppSettings.Hosts)
+      {
+        logger.Information($"{i}: {h.HostName} (timeout: {h.TimeoutInSeconds} sec.)");
+        i++;
+      }
+    }
+
+    private void LogStats()
+    {
+      logger.Information("Stats:");
+      int i = 0;
+      foreach (var h in stats.Keys)
+      {
+        logger.Information($"{i}: {h.HostName} ({stats[h].ReplySuccess} / {stats[h].PingsTransmitted})");
+        i++;
+      }
+    }
+
+    private void SettingsCheck()
+    {
+      int timeoutSum = AppSettingsProvider.AppSettings.Hosts.Sum(p => p.TimeoutInSeconds);
+      if (timeoutSum > AppSettingsProvider.AppSettings.PingIntervalInSeconds)
+        logger.Warning("AppSettings: Sum of timeouts is exceeding the ping round interval. It is not recommended in long time process running.");
+    }
+
   }
 }

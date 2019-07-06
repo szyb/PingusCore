@@ -7,5 +7,8 @@ namespace PingusCore
     public int PingIntervalInSeconds { get; set; }
 
     public IEnumerable<Host> Hosts { get; set; }
+
+    public bool LogConfig { get; set; }
+    public bool LogStats { get; set; }
   }
 }
